@@ -1,0 +1,33 @@
+# Server
+server/node_modules/
+server/uploads/*
+!server/uploads/.gitkeep
+server/.env
+
+# Android
+android-app/.gradle/
+android-app/local.properties
+android-app/app/build/
+android-app/build/
+android-app/*.iml
+android-app/.idea/
+*.apk
+*.aab
+
+# OS
+.DS_Store
+Thumbs.db
+
+node_modules/
+dist/
+build/
+*.log
+*.tmp
+*.env
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

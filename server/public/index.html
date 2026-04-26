@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalBeam — File Transfer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: #2a2a38;
+      --accent: #00e5ff;
+      --accent2: #7c3aed;
+      --accent3: #10b981;
+      --danger: #ef4444;
+      --text: #e8e8f0;
+      --text-dim: #6b6b80;
+      --text-mid: #a0a0b8;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --glow: 0 0 20px rgba(0, 229, 255, 0.15);
+      --glow-strong: 0 0 40px rgba(0, 229, 255, 0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-mid);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent3);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+    }
+
+    /* ── Main Layout ── */
+    main { padding: 40px 0 60px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+
+    .card-body { padding: 20px; }
+
+    /* ── Connection Info ── */
+    .ip-display {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: var(--glow);
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .port-badge {
+      display: inline-block;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.3);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+
+    .qr-container {
+      margin: 16px 0;
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1;
+    }
+
+    .qr-container img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+
+    .qr-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #999;
+      font-family: var(--mono);
+      font-size: 11px;
+      height: 180px;
+    }
+
+    .copy-url-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-mid);
+      font-family: var(--mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .copy-url-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,229,255,0.05);
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Upload Zone ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,229,255,0.05) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .upload-zone:hover::before, .upload-zone.dragover::before { opacity: 1; }
+
+    .upload-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+    .upload-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .upload-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 0;
+    }
+
+    /* Progress */
+    .upload-progress {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .upload-progress.visible { display: block; }
+
+    .progress-bar-wrap {
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .progress-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-mid);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── File Table ── */
+    .file-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.2);
+      color: var(--accent);
+    }
+
+    .search-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus { border-color: var(--accent); }
+    .search-box::placeholder { color: var(--text-dim); }
+
+    .file-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .file-table th {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-row {
+      border-bottom: 1px solid rgba(42,42,56,0.5);
+      transition: background 0.15s;
+    }
+
+    .file-row:hover { background: rgba(0,229,255,0.03); }
+
+    .file-row td { padding: 12px; vertical-align: middle; }
+
+    .file-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .file-name-cell { display: flex; align-items: center; gap: 12px; }
+
+    .file-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-size {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .file-date {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .file-actions { display: flex; gap: 6px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: rgba(0,229,255,0.1);
+      border-color: rgba(0,229,255,0.3);
+      color: var(--accent);
+    }
+    .btn-primary:hover {
+      background: rgba(0,229,255,0.2);
+      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      border-color: rgba(239,68,68,0.2);
+      color: var(--danger);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-mid);
+    }
+    .btn-ghost:hover { border-color: var(--text-mid); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+    .empty-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text-mid); }
+    .empty-sub { font-size: 13px; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px solid;
+      animation: slide-in 0.3s ease;
+      max-width: 320px;
+    }
+
+    .toast.success {
+      background: rgba(16,185,129,0.15);
+      border-color: rgba(16,185,129,0.4);
+      color: var(--accent3);
+    }
+
+    .toast.error {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.4);
+      color: var(--danger);
+    }
+
+    .toast.info {
+      background: rgba(0,229,255,0.1);
+      border-color: rgba(0,229,255,0.3);
+      color: var(--accent);
+    }
+
+    @keyframes slide-in {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* File type colors */
+    .type-image { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .type-video { background: rgba(124,58,237,0.15); color: #7c3aed; }
+    .type-doc   { background: rgba(59,130,246,0.15); color: #3b82f6; }
+    .type-code  { background: rgba(16,185,129,0.15); color: var(--accent3); }
+    .type-zip   { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .type-file  { background: rgba(107,114,128,0.15); color: #9ca3af; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <div class="logo-text">LocalBeam</div>
+          <div class="logo-sub">File Transfer</div>
+        </div>
+      </div>
+      <div class="server-status">
+        <div class="status-dot"></div>
+        <span id="server-url-header">Loading…</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="grid">
+
+      <!-- Left sidebar -->
+      <aside>
+
+        <!-- Connection Info -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <span class="card-title">📡 Connection</span>
+          </div>
+          <div class="card-body">
+            <div class="ip-display" id="server-ip">—.—.—.—</div>
+            <div class="port-badge" id="server-port">PORT ····</div>
+
+            <div class="qr-container" id="qr-wrap">
+              <div class="qr-placeholder">
+                <div>⬛</div><div>Loading QR...</div>
+              </div>
+            </div>
+
+            <button class="copy-url-btn" id="copy-url-btn" onclick="copyUrl()">
+              📋 Copy Network URL
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📊 Storage</span>
+            <button class="btn btn-ghost" onclick="refreshAll()" style="padding:4px 10px;font-size:11px">↻ Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="stats-row">
+              <div class="stat-box">
+                <div class="stat-value" id="stat-count">—</div>
+                <div class="stat-label">Files</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" id="stat-size">—</div>
+                <div class="stat-label">Total Size</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Right content -->
+      <section>
+
+        <!-- Upload zone -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header">
+            <span class="card-title">⬆ Upload Files</span>
+            <span style="font-size:11px;color:var(--text-dim);font-family:var(--mono)">Max 2 GB per file</span>
+          </div>
+          <div class="card-body">
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="file-input" multiple onchange="handleFileSelect(event)" />
+              <span class="upload-icon">📂</span>
+              <div class="upload-title">Drop files here or click to browse</div>
+              <div class="upload-subtitle">Any file type · Multiple files supported</div>
+            </div>
+
+            <div class="upload-progress" id="upload-progress">
+              <div class="progress-label">
+                <span id="progress-filename">Uploading…</span>
+                <span id="progress-pct">0%</span>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar" id="progress-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- File list -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="card-title">📁 Files</span>
+              <span class="badge" id="file-count-badge">0</span>
+            </div>
+            <input class="search-box" type="text" placeholder="Search files…" oninput="filterFiles(this.value)" />
+          </div>
+          <div class="card-body" style="padding:0">
+            <div id="file-list-container">
+              <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div class="empty-title">No files yet</div>
+                <div class="empty-sub">Upload files from this page or your Android device</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  let allFiles = [];
+  let serverInfo = {};
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    await Promise.all([fetchServerInfo(), fetchFiles(), fetchStats()]);
+    setupDragDrop();
+  }
+
+  async function refreshAll() {
+    await Promise.all([fetchFiles(), fetchStats()]);
+    toast('Refreshed', 'info');
+  }
+
+  // ── Server Info ───────────────────────────────────────────────────────────
+  async function fetchServerInfo() {
+    try {
+      const res = await fetch('/api/info');
+      serverInfo = await res.json();
+      document.getElementById('server-ip').textContent = serverInfo.ip;
+      document.getElementById('server-port').textContent = 'PORT ' + serverInfo.port;
+      document.getElementById('server-url-header').textContent = serverInfo.url;
+
+      if (serverInfo.qr) {
+        const wrap = document.getElementById('qr-wrap');
+        wrap.innerHTML = `<img src="${serverInfo.qr}" alt="QR Code" />`;
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  function copyUrl() {
+    navigator.clipboard.writeText(serverInfo.url || window.location.origin).then(() => {
+      toast('URL copied to clipboard!', 'success');
+    });
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  async function fetchStats() {
+    try {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      document.getElementById('stat-count').textContent = data.fileCount;
+      document.getElementById('stat-size').textContent = data.totalSizeFormatted;
+    } catch (e) {}
+  }
+
+  // ── Files ─────────────────────────────────────────────────────────────────
+  async function fetchFiles() {
+    try {
+      const res = await fetch('/api/files');
+      const data = await res.json();
+      allFiles = data.files || [];
+      document.getElementById('file-count-badge').textContent = allFiles.length;
+      renderFiles(allFiles);
+    } catch (e) { console.error(e); }
+  }
+
+  function filterFiles(query) {
+    const q = query.toLowerCase();
+    renderFiles(allFiles.filter(f => f.originalName.toLowerCase().includes(q)));
+  }
+
+  function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const map = {
+      jpg: ['🖼', 'type-image'], jpeg: ['🖼', 'type-image'], png: ['🖼', 'type-image'],
+      gif: ['🖼', 'type-image'], webp: ['🖼', 'type-image'], svg: ['🖼', 'type-image'],
+      mp4: ['🎬', 'type-video'], mkv: ['🎬', 'type-video'], avi: ['🎬', 'type-video'],
+      mov: ['🎬', 'type-video'], webm: ['🎬', 'type-video'],
+      pdf: ['📄', 'type-doc'], doc: ['📝', 'type-doc'], docx: ['📝', 'type-doc'],
+      txt: ['📄', 'type-doc'], md: ['📝', 'type-doc'], xls: ['📊', 'type-doc'],
+      js: ['⚙', 'type-code'], ts: ['⚙', 'type-code'], py: ['⚙', 'type-code'],
+      java: ['⚙', 'type-code'], kt: ['⚙', 'type-code'], html: ['⚙', 'type-code'],
+      css: ['⚙', 'type-code'], json: ['⚙', 'type-code'],
+      zip: ['📦', 'type-zip'], rar: ['📦', 'type-zip'], tar: ['📦', 'type-zip'],
+      gz: ['📦', 'type-zip'], '7z': ['📦', 'type-zip'],
+    };
+    return map[ext] || ['📄', 'type-file'];
+  }
+
+  function renderFiles(files) {
+    const container = document.getElementById('file-list-container');
+    if (!files.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">No files yet</div>
+          <div class="empty-sub">Upload files from this page or your Android device</div>
+        </div>`;
+      return;
+    }
+
+    const rows = files.map(f => {
+      const [icon, cls] = getFileIcon(f.originalName);
+      return `
+        <tr class="file-row">
+          <td>
+            <div class="file-name-cell">
+              <div class="file-icon ${cls}">${icon}</div>
+              <div class="file-name" title="${f.originalName}">${f.originalName}</div>
+            </div>
+          </td>
+          <td><span class="file-size">${f.sizeFormatted}</span></td>
+          <td><span class="file-date">${f.modifiedFormatted}</span></td>
+          <td>
+            <div class="file-actions">
+              <a class="btn btn-primary" href="/api/download/${encodeURIComponent(f.name)}">⬇ Download</a>
+              <button class="btn btn-danger" onclick="deleteFile('${f.name}')">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Modified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── Upload ────────────────────────────────────────────────────────────────
+  async function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    await uploadFiles(files);
+    e.target.value = '';
+  }
+
+  async function uploadFiles(files) {
+    const progressEl = document.getElementById('upload-progress');
+    const bar = document.getElementById('progress-bar');
+    const pct = document.getElementById('progress-pct');
+    const fname = document.getElementById('progress-filename');
+
+    progressEl.classList.add('visible');
+
+    const formData = new FormData();
+    files.forEach(f => formData.append('files', f));
+    fname.textContent = files.length === 1 ? files[0].name : `${files.length} files`;
+
+    try {
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/upload');
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const p = Math.round((e.loaded / e.total) * 100);
+            bar.style.width = p + '%';
+            pct.textContent = p + '%';
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
+          else reject(new Error('Upload failed'));
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(formData);
+      });
+
+      toast(`✓ ${files.length} file(s) uploaded`, 'success');
+      await Promise.all([fetchFiles(), fetchStats()]);
+    } catch (err) {
+      toast('Upload failed: ' + err.message, 'error');
+    } finally {
+      setTimeout(() => {
+        progressEl.classList.remove('visible');
+        bar.style.width = '0%';
+        pct.textContent = '0%';
+      }, 1200);
+    }
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  async function deleteFile(name) {
+    if (!confirm('Delete this file?')) return;
+    try {
+      const res = await fetch('/api/files/' + encodeURIComponent(name), { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      toast('File deleted', 'success');
+      await Promise.all([fetchFiles(), fetchStats()]);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  // ── Drag & Drop ───────────────────────────────────────────────────────────
+  function setupDragDrop() {
+    const zone = document.getElementById('upload-zone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length) await uploadFiles(files);
+    });
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  init();
+</script>
+</body>
+</html>
