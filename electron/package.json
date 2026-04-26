@@ -2,7 +2,15 @@
   "name": "localbeam",
   "version": "1.0.0",
   "description": "Offline cross-platform file transfer between Android and desktop",
-  "author": "LocalBeam",
+  "author": {
+    "name": "LocalBeam",
+    "email": "localbeam@users.noreply.github.com"
+    },
+    "homepage": "https://github.com/YOUR_USERNAME/localbeam",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/makvana-vaibhav/localbeam-lan-file-transfer.git"
+  },
   "license": "MIT",
   "main": "electron/main.js",
   "scripts": {
@@ -28,8 +36,7 @@
       "buildResources": "electron/assets"
     },
     "files": [
-      "electron/**/*",
-      "!electron/assets/node/**"
+      "electron/**/*"
     ],
     "extraResources": [
       {
@@ -44,9 +51,6 @@
       }
     ],
     "asar": true,
-    "asarUnpack": [
-      "node_modules/**"
-    ],
     "linux": {
       "target": [
         { "target": "AppImage", "arch": ["x64"] },
@@ -55,10 +59,12 @@
       "category": "Network",
       "icon": "electron/assets/icon.png",
       "synopsis": "Offline file transfer between Android and Linux",
-      "description": "Transfer files between your Android phone and Linux machine over local WiFi. No internet required."
+      "description": "Transfer files between your Android phone and Linux machine over local WiFi.",
+      "maintainer": "LocalBeam <localbeam@users.noreply.github.com>"
     },
     "deb": {
-      "depends": ["libnotify4", "libxtst6", "libnss3"]
+      "depends": ["libnotify4", "libxtst6", "libnss3"],
+      "maintainer": "LocalBeam <localbeam@users.noreply.github.com>"
     },
     "win": {
       "target": [
@@ -74,7 +80,6 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "LocalBeam",
-      "installerHeaderIcon": "electron/assets/icon.ico",
       "deleteAppDataOnUninstall": false
     },
     "mac": {
