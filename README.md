@@ -8,6 +8,10 @@
 
 ```
 localbeam/
+├── electron/                  ← Electron desktop launcher
+│   ├── main.js                ← Starts/stops backend + opens desktop window
+│   └── loading.html           ← Loading screen while backend boots
+├── package.json               ← Electron + desktop packaging config
 ├── server/                    ← Node.js Linux server
 │   ├── server.js              ← Main server entry point
 │   ├── package.json           ← Dependencies
@@ -58,6 +62,7 @@ localbeam/
 |------|---------|
 | Node.js | ≥ 18.x |
 | npm | ≥ 9.x |
+| Electron (dev dependency) | bundled via package.json |
 | Android Studio | Hedgehog or newer |
 | Android device | API 24+ (Android 7.0+) |
 
@@ -104,6 +109,72 @@ You'll see:
 
 ```bash
 PORT=9000 npm start
+```
+
+---
+
+## 🧰 Desktop App (Electron)
+
+LocalBeam now supports one-click desktop launch with embedded backend.
+
+### Development desktop run
+
+```bash
+cd localbeam
+npm install
+npm run dev
+```
+
+What happens automatically:
+- Electron app window opens
+- Backend server starts in background (child process)
+- Loading screen is shown until backend is ready
+- UI opens at `http://127.0.0.1:<PORT>`
+- If preferred port is busy, backend falls back to next available port
+- Backend is gracefully stopped when app exits
+
+### Build installers
+
+```bash
+# Windows .exe (NSIS)
+npm run dist:win
+
+# Linux AppImage + .deb
+npm run dist:linux
+
+# macOS .dmg
+npm run dist:mac
+
+# All targets (on supported build hosts)
+npm run dist
+```
+
+Output folder:
+- `dist-desktop/`
+
+> Note: Cross-platform binaries are best built on their respective OS (or CI runners for each OS).
+
+### Download ready-to-run executables (recommended)
+
+This repo includes a CI workflow at `.github/workflows/build-desktop.yml` that builds all desktop targets on native runners:
+
+- Linux: `.AppImage` and `.deb`
+- Windows: `.exe` (NSIS installer + unpacked app)
+- macOS: `.dmg`
+
+How to get files:
+
+1. Push your code to GitHub.
+2. Trigger the workflow from **Actions → Build LocalBeam Desktop → Run workflow**.
+3. After it finishes:
+    - Download artifacts from the workflow run page, or
+    - Create a tag like `v1.0.0` and push it; the workflow will publish a GitHub Release with all binaries attached.
+
+Tag + release example:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ### Run in background (optional)
