@@ -5,60 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LocalBeam — File Transfer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --surface2: #1a1a24;
-      --border: #2a2a38;
-      --accent: #00e5ff;
-      --accent2: #7c3aed;
-      --accent3: #10b981;
-      --danger: #ef4444;
-      --text: #e8e8f0;
-      --text-dim: #6b6b80;
-      --text-mid: #a0a0b8;
-      --mono: 'Space Mono', monospace;
-      --sans: 'DM Sans', sans-serif;
-      --glow: 0 0 20px rgba(0, 229, 255, 0.15);
-      --glow-strong: 0 0 40px rgba(0, 229, 255, 0.3);
+      --bg: #ffffff;
+      --surface: #f8f8f8;
+      --surface-hover: #f0f0f0;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --accent: #0066cc;
+      --accent-hover: #0052a3;
+      --success: #059669;
+      --error: #dc2626;
+      --warning: #d97706;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--sans);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
+      line-height: 1.6;
     }
 
-    /* Grid background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* ── Header ── */
+    /* Header */
     header {
       border-bottom: 1px solid var(--border);
       padding: 20px 0;
-      background: rgba(10,10,15,0.8);
-      backdrop-filter: blur(20px);
+      background: var(--bg);
       position: sticky;
       top: 0;
       z-index: 100;
+    }
+
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 24px; 
     }
 
     .header-inner {
@@ -73,74 +64,62 @@
       gap: 12px;
     }
 
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
     .logo-text {
-      font-family: var(--mono);
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--text);
       letter-spacing: -0.5px;
     }
 
     .logo-sub {
-      font-size: 11px;
-      color: var(--text-dim);
-      font-family: var(--mono);
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      letter-spacing: 0.5px;
     }
 
     .server-status {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--text-mid);
+      font-size: 13px;
+      color: var(--text-secondary);
       background: var(--surface);
       border: 1px solid var(--border);
       padding: 8px 14px;
-      border-radius: 6px;
+      border-radius: 4px;
     }
 
     .status-dot {
       width: 8px;
       height: 8px;
-      background: var(--accent3);
+      background: var(--success);
       border-radius: 50%;
       animation: pulse-dot 2s infinite;
     }
 
     @keyframes pulse-dot {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
 
-    /* ── Main Layout ── */
-    main { padding: 40px 0 60px; }
+    /* Main Layout */
+    main { 
+      padding: 40px 0 60px; 
+    }
 
     .grid {
       display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 24px;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
       align-items: start;
     }
 
-    /* ── Cards ── */
+    /* Cards */
     .card {
-      background: var(--surface);
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 6px;
       overflow: hidden;
     }
 
@@ -153,43 +132,44 @@
     }
 
     .card-title {
-      font-family: var(--mono);
       font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: var(--text-mid);
+      color: var(--text-secondary);
     }
 
-    .card-body { padding: 20px; }
+    .card-body { 
+      padding: 20px; 
+    }
 
-    /* ── Connection Info ── */
+    /* Connection Info */
     .ip-display {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent);
-      text-shadow: var(--glow);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
       margin-bottom: 4px;
       word-break: break-all;
+      font-family: 'Courier New', monospace;
     }
 
     .port-badge {
       display: inline-block;
-      background: rgba(0,229,255,0.1);
-      border: 1px solid rgba(0,229,255,0.3);
-      color: var(--accent);
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 3px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+      padding: 4px 10px;
       border-radius: 4px;
-      margin-top: 6px;
+      margin-top: 8px;
+      font-family: 'Courier New', monospace;
     }
 
     .qr-container {
       margin: 16px 0;
       background: white;
-      border-radius: 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
       padding: 12px;
       display: flex;
       align-items: center;
@@ -197,7 +177,11 @@
       aspect-ratio: 1;
     }
 
-    .qr-container img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+    .qr-container img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain; 
+    }
 
     .qr-placeholder {
       display: flex;
@@ -205,36 +189,35 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      color: #999;
-      font-family: var(--mono);
-      font-size: 11px;
+      color: var(--text-muted);
+      font-size: 12px;
       height: 180px;
     }
 
     .copy-url-btn {
       width: 100%;
       padding: 10px;
-      background: var(--surface2);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-mid);
-      font-family: var(--mono);
-      font-size: 11px;
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 12px;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      margin-top: 12px;
     }
 
     .copy-url-btn:hover {
+      background: var(--surface-hover);
       border-color: var(--accent);
       color: var(--accent);
-      background: rgba(0,229,255,0.05);
     }
 
-    /* Stats row */
+    /* Stats */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -243,59 +226,45 @@
     }
 
     .stat-box {
-      background: var(--surface2);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 4px;
       padding: 12px;
     }
 
     .stat-value {
-      font-family: var(--mono);
       font-size: 20px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text);
     }
 
     .stat-label {
       font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 2px;
+      color: var(--text-muted);
+      margin-top: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    /* ── Upload Zone ── */
+    /* Upload Zone */
     .upload-zone {
       border: 2px dashed var(--border);
-      border-radius: 12px;
+      border-radius: 6px;
       padding: 40px 20px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      background: var(--surface);
       position: relative;
-      overflow: hidden;
-    }
-
-    .upload-zone::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0,229,255,0.05) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s;
     }
 
     .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--accent);
-      box-shadow: var(--glow);
+      background: var(--bg);
     }
 
-    .upload-zone:hover::before, .upload-zone.dragover::before { opacity: 1; }
-
-    .upload-icon { font-size: 40px; margin-bottom: 12px; display: block; }
-
     .upload-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
       margin-bottom: 6px;
@@ -303,7 +272,7 @@
 
     .upload-subtitle {
       font-size: 13px;
-      color: var(--text-dim);
+      color: var(--text-muted);
     }
 
     .upload-zone input[type="file"] {
@@ -320,34 +289,36 @@
       display: none;
     }
 
-    .upload-progress.visible { display: block; }
+    .upload-progress.visible { 
+      display: block; 
+    }
 
     .progress-bar-wrap {
-      background: var(--surface2);
-      border-radius: 4px;
+      background: var(--surface);
+      border-radius: 3px;
       height: 6px;
       overflow: hidden;
       margin-top: 8px;
+      border: 1px solid var(--border);
     }
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 4px;
+      background: var(--accent);
+      border-radius: 3px;
       width: 0%;
       transition: width 0.3s;
-      box-shadow: 0 0 10px var(--accent);
     }
 
     .progress-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-mid);
+      font-size: 12px;
+      color: var(--text-secondary);
       display: flex;
       justify-content: space-between;
+      margin-bottom: 4px;
     }
 
-    /* ── File Table ── */
+    /* File List */
     .file-list-header {
       display: flex;
       align-items: center;
@@ -356,30 +327,34 @@
     }
 
     .badge {
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: rgba(0,229,255,0.1);
-      border: 1px solid rgba(0,229,255,0.2);
-      color: var(--accent);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
     }
 
     .search-box {
-      background: var(--surface2);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-family: var(--sans);
+      border-radius: 4px;
+      padding: 8px 12px;
       font-size: 13px;
       color: var(--text);
       outline: none;
       width: 200px;
       transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif;
     }
 
-    .search-box:focus { border-color: var(--accent); }
-    .search-box::placeholder { color: var(--text-dim); }
+    .search-box:focus { 
+      border-color: var(--accent);
+    }
+
+    .search-box::placeholder { 
+      color: var(--text-muted); 
+    }
 
     .file-table {
       width: 100%;
@@ -387,37 +362,51 @@
     }
 
     .file-table th {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 1px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: var(--text-secondary);
       text-align: left;
-      padding: 10px 12px;
+      padding: 12px;
       border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      background: var(--surface);
     }
 
     .file-row {
-      border-bottom: 1px solid rgba(42,42,56,0.5);
+      border-bottom: 1px solid var(--border);
       transition: background 0.15s;
     }
 
-    .file-row:hover { background: rgba(0,229,255,0.03); }
+    .file-row:hover { 
+      background: var(--surface);
+    }
 
-    .file-row td { padding: 12px; vertical-align: middle; }
+    .file-row td { 
+      padding: 12px; 
+      vertical-align: middle; 
+    }
+
+    .file-name-cell { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+    }
 
     .file-icon {
       width: 32px;
       height: 32px;
-      border-radius: 6px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 12px;
       flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-weight: 600;
     }
-
-    .file-name-cell { display: flex; align-items: center; gap: 12px; }
 
     .file-name {
       font-size: 13px;
@@ -429,69 +418,78 @@
       white-space: nowrap;
     }
 
-    .file-size {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-dim);
+    .file-size, .file-date {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
     }
 
-    .file-date {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-dim);
+    .file-actions { 
+      display: flex; 
+      gap: 6px; 
     }
-
-    .file-actions { display: flex; gap: 6px; }
 
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 7px 14px;
-      border-radius: 6px;
-      font-family: var(--sans);
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid transparent;
       text-decoration: none;
+      font-family: 'Inter', sans-serif;
     }
 
     .btn-primary {
-      background: rgba(0,229,255,0.1);
-      border-color: rgba(0,229,255,0.3);
-      color: var(--accent);
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
     }
     .btn-primary:hover {
-      background: rgba(0,229,255,0.2);
-      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
     }
 
     .btn-danger {
-      background: rgba(239,68,68,0.1);
-      border-color: rgba(239,68,68,0.2);
-      color: var(--danger);
+      background: transparent;
+      border-color: var(--error);
+      color: var(--error);
     }
-    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .btn-danger:hover { 
+      background: #fef2f2;
+    }
 
     .btn-ghost {
       background: transparent;
       border-color: var(--border);
-      color: var(--text-mid);
+      color: var(--text-secondary);
     }
-    .btn-ghost:hover { border-color: var(--text-mid); }
+    .btn-ghost:hover { 
+      border-color: var(--text);
+      color: var(--text);
+    }
 
     /* Empty state */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
-      color: var(--text-dim);
+      color: var(--text-muted);
     }
 
-    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
-    .empty-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--text-mid); }
-    .empty-sub { font-size: 13px; }
+    .empty-title { 
+      font-size: 15px; 
+      font-weight: 500; 
+      margin-bottom: 6px; 
+      color: var(--text-secondary); 
+    }
+
+    .empty-sub { 
+      font-size: 13px; 
+    }
 
     /* Toast */
     .toast-container {
@@ -506,30 +504,29 @@
 
     .toast {
       padding: 12px 18px;
-      border-radius: 8px;
-      font-family: var(--mono);
-      font-size: 12px;
+      border-radius: 4px;
+      font-size: 13px;
       border: 1px solid;
       animation: slide-in 0.3s ease;
       max-width: 320px;
     }
 
     .toast.success {
-      background: rgba(16,185,129,0.15);
-      border-color: rgba(16,185,129,0.4);
-      color: var(--accent3);
+      background: #f0fdf4;
+      border-color: var(--success);
+      color: #166534;
     }
 
     .toast.error {
-      background: rgba(239,68,68,0.15);
-      border-color: rgba(239,68,68,0.4);
-      color: var(--danger);
+      background: #fef2f2;
+      border-color: var(--error);
+      color: #991b1b;
     }
 
     .toast.info {
-      background: rgba(0,229,255,0.1);
-      border-color: rgba(0,229,255,0.3);
-      color: var(--accent);
+      background: #eff6ff;
+      border-color: var(--accent);
+      color: #1e40af;
     }
 
     @keyframes slide-in {
@@ -537,16 +534,14 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
-    /* File type colors */
-    .type-image { background: rgba(245,158,11,0.15); color: #f59e0b; }
-    .type-video { background: rgba(124,58,237,0.15); color: #7c3aed; }
-    .type-doc   { background: rgba(59,130,246,0.15); color: #3b82f6; }
-    .type-code  { background: rgba(16,185,129,0.15); color: var(--accent3); }
-    .type-zip   { background: rgba(239,68,68,0.15);  color: var(--danger); }
-    .type-file  { background: rgba(107,114,128,0.15); color: #9ca3af; }
-
+    /* Responsive */
     @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
+      .grid { 
+        grid-template-columns: 1fr; 
+      }
+      .search-box {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -556,7 +551,6 @@
   <div class="container">
     <div class="header-inner">
       <div class="logo">
-        <div class="logo-icon">⚡</div>
         <div>
           <div class="logo-text">LocalBeam</div>
           <div class="logo-sub">File Transfer</div>
@@ -580,7 +574,7 @@
         <!-- Connection Info -->
         <div class="card" style="margin-bottom:20px">
           <div class="card-header">
-            <span class="card-title">📡 Connection</span>
+            <span class="card-title">Connection</span>
           </div>
           <div class="card-body">
             <div class="ip-display" id="server-ip">—.—.—.—</div>
@@ -588,12 +582,12 @@
 
             <div class="qr-container" id="qr-wrap">
               <div class="qr-placeholder">
-                <div>⬛</div><div>Loading QR...</div>
+                <div>QR Code</div><div>Loading…</div>
               </div>
             </div>
 
             <button class="copy-url-btn" id="copy-url-btn" onclick="copyUrl()">
-              📋 Copy Network URL
+              Copy Network URL
             </button>
           </div>
         </div>
@@ -601,8 +595,8 @@
         <!-- Stats -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title">📊 Storage</span>
-            <button class="btn btn-ghost" onclick="refreshAll()" style="padding:4px 10px;font-size:11px">↻ Refresh</button>
+            <span class="card-title">Storage</span>
+            <button class="btn btn-ghost" onclick="refreshAll()" style="padding:4px 10px;font-size:11px">Refresh</button>
           </div>
           <div class="card-body">
             <div class="stats-row">
@@ -626,15 +620,14 @@
         <!-- Upload zone -->
         <div class="card" style="margin-bottom:24px">
           <div class="card-header">
-            <span class="card-title">⬆ Upload Files</span>
-            <span style="font-size:11px;color:var(--text-dim);font-family:var(--mono)">Max 2 GB per file</span>
+            <span class="card-title">Upload Files</span>
+            <span style="font-size:11px;color:var(--text-muted)">Max 2 GB per file</span>
           </div>
           <div class="card-body">
             <div class="upload-zone" id="upload-zone">
               <input type="file" id="file-input" multiple onchange="handleFileSelect(event)" />
-              <span class="upload-icon">📂</span>
               <div class="upload-title">Drop files here or click to browse</div>
-              <div class="upload-subtitle">Any file type · Multiple files supported</div>
+              <div class="upload-subtitle">Any file type supported</div>
             </div>
 
             <div class="upload-progress" id="upload-progress">
@@ -653,7 +646,7 @@
         <div class="card">
           <div class="card-header">
             <div style="display:flex;align-items:center;gap:10px">
-              <span class="card-title">📁 Files</span>
+              <span class="card-title">Files</span>
               <span class="badge" id="file-count-badge">0</span>
             </div>
             <input class="search-box" type="text" placeholder="Search files…" oninput="filterFiles(this.value)" />
@@ -661,7 +654,6 @@
           <div class="card-body" style="padding:0">
             <div id="file-list-container">
               <div class="empty-state">
-                <div class="empty-icon">📭</div>
                 <div class="empty-title">No files yet</div>
                 <div class="empty-sub">Upload files from this page or your Android device</div>
               </div>
@@ -680,7 +672,6 @@
   let allFiles = [];
   let serverInfo = {};
 
-  // ── Init ──────────────────────────────────────────────────────────────────
   async function init() {
     await Promise.all([fetchServerInfo(), fetchFiles(), fetchStats()]);
     setupDragDrop();
@@ -691,7 +682,6 @@
     toast('Refreshed', 'info');
   }
 
-  // ── Server Info ───────────────────────────────────────────────────────────
   async function fetchServerInfo() {
     try {
       const res = await fetch('/api/info');
@@ -713,7 +703,6 @@
     });
   }
 
-  // ── Stats ─────────────────────────────────────────────────────────────────
   async function fetchStats() {
     try {
       const res = await fetch('/api/stats');
@@ -723,7 +712,6 @@
     } catch (e) {}
   }
 
-  // ── Files ─────────────────────────────────────────────────────────────────
   async function fetchFiles() {
     try {
       const res = await fetch('/api/files');
@@ -742,19 +730,17 @@
   function getFileIcon(name) {
     const ext = name.split('.').pop().toLowerCase();
     const map = {
-      jpg: ['🖼', 'type-image'], jpeg: ['🖼', 'type-image'], png: ['🖼', 'type-image'],
-      gif: ['🖼', 'type-image'], webp: ['🖼', 'type-image'], svg: ['🖼', 'type-image'],
-      mp4: ['🎬', 'type-video'], mkv: ['🎬', 'type-video'], avi: ['🎬', 'type-video'],
-      mov: ['🎬', 'type-video'], webm: ['🎬', 'type-video'],
-      pdf: ['📄', 'type-doc'], doc: ['📝', 'type-doc'], docx: ['📝', 'type-doc'],
-      txt: ['📄', 'type-doc'], md: ['📝', 'type-doc'], xls: ['📊', 'type-doc'],
-      js: ['⚙', 'type-code'], ts: ['⚙', 'type-code'], py: ['⚙', 'type-code'],
-      java: ['⚙', 'type-code'], kt: ['⚙', 'type-code'], html: ['⚙', 'type-code'],
-      css: ['⚙', 'type-code'], json: ['⚙', 'type-code'],
-      zip: ['📦', 'type-zip'], rar: ['📦', 'type-zip'], tar: ['📦', 'type-zip'],
-      gz: ['📦', 'type-zip'], '7z': ['📦', 'type-zip'],
+      jpg: 'IMG', jpeg: 'IMG', png: 'IMG', gif: 'IMG', webp: 'IMG', svg: 'IMG',
+      mp4: 'VID', mkv: 'VID', avi: 'VID', mov: 'VID', webm: 'VID',
+      mp3: 'AUD', wav: 'AUD', flac: 'AUD', aac: 'AUD', ogg: 'AUD',
+      pdf: 'PDF', doc: 'DOC', docx: 'DOC', txt: 'TXT', md: 'TXT',
+      xls: 'XLS', xlsx: 'XLS',
+      zip: 'ZIP', rar: 'ZIP', tar: 'ZIP', gz: 'ZIP', '7z': 'ZIP',
+      js: 'JS', ts: 'TS', py: 'PY', java: 'JAVA', kt: 'KT',
+      html: 'HTML', css: 'CSS', json: 'JSON',
+      apk: 'APK',
     };
-    return map[ext] || ['📄', 'type-file'];
+    return map[ext] || 'FILE';
   }
 
   function renderFiles(files) {
@@ -762,7 +748,6 @@
     if (!files.length) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">📭</div>
           <div class="empty-title">No files yet</div>
           <div class="empty-sub">Upload files from this page or your Android device</div>
         </div>`;
@@ -770,12 +755,12 @@
     }
 
     const rows = files.map(f => {
-      const [icon, cls] = getFileIcon(f.originalName);
+      const icon = getFileIcon(f.originalName);
       return `
         <tr class="file-row">
           <td>
             <div class="file-name-cell">
-              <div class="file-icon ${cls}">${icon}</div>
+              <div class="file-icon">${icon}</div>
               <div class="file-name" title="${f.originalName}">${f.originalName}</div>
             </div>
           </td>
@@ -783,8 +768,8 @@
           <td><span class="file-date">${f.modifiedFormatted}</span></td>
           <td>
             <div class="file-actions">
-              <a class="btn btn-primary" href="/api/download/${encodeURIComponent(f.name)}">⬇ Download</a>
-              <button class="btn btn-danger" onclick="deleteFile('${f.name}')">✕</button>
+              <a class="btn btn-primary" href="/api/download/${encodeURIComponent(f.name)}">Download</a>
+              <button class="btn btn-danger" onclick="deleteFile('${f.name}')">Delete</button>
             </div>
           </td>
         </tr>`;
@@ -804,7 +789,6 @@
       </table>`;
   }
 
-  // ── Upload ────────────────────────────────────────────────────────────────
   async function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -845,7 +829,7 @@
         xhr.send(formData);
       });
 
-      toast(`✓ ${files.length} file(s) uploaded`, 'success');
+      toast(`${files.length} file(s) uploaded`, 'success');
       await Promise.all([fetchFiles(), fetchStats()]);
     } catch (err) {
       toast('Upload failed: ' + err.message, 'error');
@@ -858,7 +842,6 @@
     }
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────
   async function deleteFile(name) {
     if (!confirm('Delete this file?')) return;
     try {
@@ -871,7 +854,6 @@
     }
   }
 
-  // ── Drag & Drop ───────────────────────────────────────────────────────────
   function setupDragDrop() {
     const zone = document.getElementById('upload-zone');
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
@@ -884,7 +866,6 @@
     });
   }
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
   function toast(msg, type = 'info') {
     const el = document.createElement('div');
     el.className = `toast ${type}`;
