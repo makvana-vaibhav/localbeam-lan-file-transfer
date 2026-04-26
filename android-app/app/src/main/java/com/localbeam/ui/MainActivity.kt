@@ -32,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     private val filePicker = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
     ) { uris ->
+        if (uris.isNotEmpty()) {
+            showSnackbar("Uploading ${uris.size} file(s)…")
+        }
         uris.forEach { uri -> viewModel.uploadFile(uri) }
     }
 
@@ -53,6 +56,16 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         observeViewModel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.startAutoRefresh()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.stopAutoRefresh()
     }
 
     private fun setupUI() {

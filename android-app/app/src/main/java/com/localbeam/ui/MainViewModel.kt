@@ -7,9 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.localbeam.models.*
 import com.localbeam.utils.FileRepository
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val repository: FileRepository) : ViewModel() {
+
+    private var autoRefreshJob: Job? = null
 
     private val _serverUrl = MutableStateFlow("")
     val serverUrl: StateFlow<String> = _serverUrl.asStateFlow()
@@ -49,8 +53,10 @@ class MainViewModel(private val repository: FileRepository) : ViewModel() {
                     _connectionState.value = UiState.Success(info)
                     loadFiles()
                     loadStats()
+                    startAutoRefresh()
                 }
                 .onFailure { e ->
+                    stopAutoRefresh()
                     _connectionState.value = UiState.Error(
                         "Cannot reach server at $url\n${e.message}"
                     )
@@ -110,4 +116,30 @@ class MainViewModel(private val repository: FileRepository) : ViewModel() {
 
     fun clearUploadState() { _uploadState.value = null }
     fun clearDownloadState() { _downloadState.value = null }
+
+    fun startAutoRefresh() {
+        if (_serverUrl.value.isBlank()) return
+        if (autoRefreshJob?.isActive == true) return
+        autoRefreshJob = viewModelScope.launch {
+            while (true) {
+                repository.listFiles().onSuccess { res ->
+                    _filesState.value = UiState.Success(res.files)
+                }
+                repository.getStats().onSuccess { stats ->
+                    _stats.value = stats
+                }
+                delay(2500)
+            }
+        }
+    }
+
+    fun stopAutoRefresh() {
+        autoRefreshJob?.cancel()
+        autoRefreshJob = null
+    }
+
+    override fun onCleared() {
+        stopAutoRefresh()
+        super.onCleared()
+    }
 }

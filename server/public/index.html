@@ -712,10 +712,20 @@
 <script>
   let allFiles = [];
   let serverInfo = {};
+  let autoSyncTimer = null;
 
   async function init() {
     await Promise.all([fetchServerInfo(), fetchFiles(), fetchStats()]);
     setupDragDrop();
+    startAutoSync();
+  }
+
+  function startAutoSync() {
+    if (autoSyncTimer) clearInterval(autoSyncTimer);
+    autoSyncTimer = setInterval(async () => {
+      if (document.hidden) return;
+      await Promise.all([fetchFiles(), fetchStats()]);
+    }, 2500);
   }
 
   async function refreshAll() {
@@ -852,7 +862,7 @@
     fname.textContent = files.length === 1 ? files[0].name : `${files.length} files`;
 
     try {
-      await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/upload');
 
@@ -865,14 +875,23 @@
         };
 
         xhr.onload = () => {
-          if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
-          else reject(new Error('Upload failed'));
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText || '{}'));
+            } catch {
+              resolve({});
+            }
+          } else {
+            reject(new Error(`Upload failed (${xhr.status})`));
+          }
         };
+
         xhr.onerror = () => reject(new Error('Network error'));
         xhr.send(formData);
       });
 
-      toast(`${files.length} file(s) uploaded`, 'success');
+      const uploadedCount = Array.isArray(result.files) ? result.files.length : files.length;
+      toast(`Uploaded ${uploadedCount} file(s)`, 'success');
       await Promise.all([fetchFiles(), fetchStats()]);
     } catch (err) {
       toast('Upload failed: ' + err.message, 'error');
