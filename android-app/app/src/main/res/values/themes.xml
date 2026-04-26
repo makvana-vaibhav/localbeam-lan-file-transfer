@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.LocalBeam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.LocalBeam" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorPrimaryVariant">@color/colorAccent2</item>
         <item name="colorOnPrimary">@color/colorBg</item>

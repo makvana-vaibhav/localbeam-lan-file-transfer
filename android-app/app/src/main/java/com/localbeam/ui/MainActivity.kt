@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import com.localbeam.R
 import com.localbeam.databinding.ActivityMainBinding
 import com.localbeam.models.RemoteFile
 import com.localbeam.models.UiState
@@ -97,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                 ScanOptions().apply {
                     setPrompt("Scan LocalBeam QR Code")
                     setBeepEnabled(false)
-                    setOrientationLocked(false)
+                    setOrientationLocked(true)
                 }
             )
         }
@@ -115,20 +116,20 @@ class MainActivity : AppCompatActivity() {
                     is UiState.Loading -> {
                         binding.connectionCard.visibility = View.VISIBLE
                         binding.tvConnectionStatus.text = "Connecting…"
-                        binding.tvConnectionStatus.setTextColor(getColor(android.R.color.holo_orange_light))
+                        binding.tvConnectionStatus.setTextColor(getColor(R.color.colorTextMid))
                         binding.progressConnection.visibility = View.VISIBLE
                     }
                     is UiState.Success -> {
-                        binding.tvConnectionStatus.text = "✓ Connected to ${state.data.ip}:${state.data.port}"
-                        binding.tvConnectionStatus.setTextColor(getColor(android.R.color.holo_green_light))
+                        binding.tvConnectionStatus.text = "Connected to ${state.data.ip}:${state.data.port}"
+                        binding.tvConnectionStatus.setTextColor(getColor(R.color.colorAccent3))
                         binding.progressConnection.visibility = View.GONE
                         binding.fabUpload.show()
                         binding.filesCard.visibility = View.VISIBLE
                         binding.swipeRefresh.visibility = View.VISIBLE
                     }
                     is UiState.Error -> {
-                        binding.tvConnectionStatus.text = "✗ ${state.message}"
-                        binding.tvConnectionStatus.setTextColor(getColor(android.R.color.holo_red_light))
+                        binding.tvConnectionStatus.text = state.message
+                        binding.tvConnectionStatus.setTextColor(getColor(R.color.colorDanger))
                         binding.progressConnection.visibility = View.GONE
                     }
                 }
@@ -167,7 +168,7 @@ class MainActivity : AppCompatActivity() {
                 when (state) {
                     is UiState.Loading -> showSnackbar("Uploading…")
                     is UiState.Success -> {
-                        showSnackbar("✓ Upload complete!")
+                        showSnackbar("Upload complete")
                         viewModel.clearUploadState()
                         viewModel.loadFiles()
                         viewModel.loadStats()
@@ -186,7 +187,7 @@ class MainActivity : AppCompatActivity() {
                 when (state) {
                     is UiState.Loading -> showSnackbar("Downloading…")
                     is UiState.Success -> {
-                        showSnackbar("✓ ${state.data}")
+                        showSnackbar(state.data)
                         viewModel.clearDownloadState()
                     }
                     is UiState.Error -> {

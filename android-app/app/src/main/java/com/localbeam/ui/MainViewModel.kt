@@ -92,7 +92,7 @@ class MainViewModel(private val repository: FileRepository) : ViewModel() {
             _downloadState.value = UiState.Loading
             repository.downloadFile(file)
                 .onSuccess { f ->
-                    _downloadState.value = UiState.Success("✓ Saved to Downloads/LocalBeam/${f.name}")
+                    _downloadState.value = UiState.Success("Saved to Downloads/LocalBeam/${f.name}")
                 }
                 .onFailure { e ->
                     _downloadState.value = UiState.Error(e.message ?: "Download failed")

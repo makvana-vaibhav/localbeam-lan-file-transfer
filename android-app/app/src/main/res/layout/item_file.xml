@@ -22,10 +22,12 @@
             android:id="@+id/tvFileIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:textSize="22sp"
+            android:textSize="11sp"
+            android:textStyle="bold"
             android:gravity="center"
             android:background="@drawable/bg_file_icon"
-            android:text="📄" />
+            android:textColor="@color/colorTextMid"
+            android:text="FILE" />
 
         <!-- File info -->
         <LinearLayout

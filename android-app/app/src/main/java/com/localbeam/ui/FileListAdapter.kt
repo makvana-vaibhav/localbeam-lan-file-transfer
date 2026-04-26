@@ -29,24 +29,24 @@ class FileListAdapter(
             binding.tvFileName.text = file.originalName
             binding.tvFileSize.text = file.sizeFormatted
             binding.tvFileDate.text = file.modifiedFormatted
-            binding.tvFileIcon.text = getFileEmoji(file.originalName)
+            binding.tvFileIcon.text = getFileLabel(file.originalName)
 
             binding.btnDownload.setOnClickListener { onDownload(file) }
             binding.btnDelete.setOnClickListener { onDelete(file) }
         }
 
-        private fun getFileEmoji(name: String): String {
+        private fun getFileLabel(name: String): String {
             return when (name.substringAfterLast('.').lowercase()) {
-                "jpg", "jpeg", "png", "gif", "webp", "svg" -> "🖼"
-                "mp4", "mkv", "avi", "mov", "webm" -> "🎬"
-                "mp3", "wav", "flac", "aac", "ogg" -> "🎵"
-                "pdf" -> "📄"
-                "doc", "docx" -> "📝"
-                "xls", "xlsx" -> "📊"
-                "zip", "rar", "tar", "gz", "7z" -> "📦"
-                "apk" -> "📱"
-                "js", "ts", "py", "java", "kt", "html", "css", "json" -> "⚙"
-                else -> "📄"
+                "jpg", "jpeg", "png", "gif", "webp", "svg" -> "IMG"
+                "mp4", "mkv", "avi", "mov", "webm" -> "VID"
+                "mp3", "wav", "flac", "aac", "ogg" -> "AUD"
+                "pdf" -> "PDF"
+                "doc", "docx" -> "DOC"
+                "xls", "xlsx" -> "XLS"
+                "zip", "rar", "tar", "gz", "7z" -> "ZIP"
+                "apk" -> "APK"
+                "js", "ts", "py", "java", "kt", "html", "css", "json" -> "CODE"
+                else -> "FILE"
             }
         }
     }
