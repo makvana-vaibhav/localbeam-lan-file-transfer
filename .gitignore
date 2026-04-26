@@ -3,7 +3,6 @@ server/node_modules/
 server/uploads/*
 !server/uploads/.gitkeep
 server/.env
-server/package-lock.json
 
 # Android
 android-app/.gradle/
@@ -13,7 +12,6 @@ android-app/build/
 android-app/*.iml
 android-app/.idea/
 android-app/.cxx/
-android-app/gradle/
 *.apk
 *.aab
 
@@ -27,6 +25,9 @@ Thumbs.db
 *.tar.gz
 *.rar
 *.7z
+commandlinetools-linux-*_latest.zip
+android-sdk/
+cmdline-tools/
 
 # IDE & Editor
 node_modules/
