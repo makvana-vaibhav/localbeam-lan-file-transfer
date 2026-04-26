@@ -9,14 +9,17 @@
   <style>
     :root {
       --bg: #ffffff;
-      --surface: #f8f8f8;
-      --surface-hover: #f0f0f0;
-      --border: #e0e0e0;
+      --surface: #faf8f4;
+      --surface-hover: #f3eee4;
+      --border: #e6dece;
+      --border-soft: #efe8dc;
       --text: #1a1a1a;
-      --text-secondary: #666666;
-      --text-muted: #999999;
-      --accent: #0066cc;
-      --accent-hover: #0052a3;
+      --text-secondary: #6a6256;
+      --text-muted: #9b907f;
+      --accent: #8b5e34;
+      --accent-hover: #744c27;
+      --tint-blue: #f9f2e8;
+      --tint-green: #f6efe2;
       --success: #059669;
       --error: #dc2626;
       --warning: #d97706;
@@ -29,7 +32,7 @@
     }
 
     body {
-      background: var(--bg);
+      background: linear-gradient(to bottom, #fdfbf7 0, #ffffff 180px);
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
@@ -67,7 +70,7 @@
     .logo-text {
       font-size: 20px;
       font-weight: 700;
-      color: var(--text);
+      color: #6f4b2a;
       letter-spacing: -0.5px;
     }
 
@@ -121,14 +124,26 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       overflow: hidden;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
     }
 
     .card-header {
       padding: 18px 20px;
       border-bottom: 1px solid var(--border);
+      background: #fbfbfb;
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+
+    .card.accent-blue .card-header {
+      background: var(--tint-blue);
+      border-bottom-color: #eadbc8;
+    }
+
+    .card.accent-green .card-header {
+      background: var(--tint-green);
+      border-bottom-color: #e7d8bf;
     }
 
     .card-title {
@@ -254,13 +269,13 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      background: var(--surface);
+      background: #fdf9f2;
       position: relative;
     }
 
     .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--accent);
-      background: var(--bg);
+      background: #fbf3e6;
     }
 
     .upload-title {
@@ -330,9 +345,9 @@
       font-size: 12px;
       padding: 4px 10px;
       border-radius: 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: var(--tint-blue);
+      border: 1px solid #e6d5be;
+      color: #7b522c;
     }
 
     .search-box {
@@ -361,6 +376,12 @@
       border-collapse: collapse;
     }
 
+    .file-table-scroll {
+      max-height: 390px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
     .file-table th {
       font-size: 11px;
       letter-spacing: 0.5px;
@@ -371,20 +392,40 @@
       border-bottom: 1px solid var(--border);
       font-weight: 600;
       background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     .file-row {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-soft);
       transition: background 0.15s;
     }
 
+    .file-row:nth-child(even) {
+      background: #fdfbf8;
+    }
+
     .file-row:hover { 
-      background: var(--surface);
+      background: #f8f1e6;
     }
 
     .file-row td { 
       padding: 12px; 
       vertical-align: middle; 
+    }
+
+    .file-table-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .file-table-scroll::-webkit-scrollbar-thumb {
+      background: #d7d7d7;
+      border-radius: 8px;
+    }
+
+    .file-table-scroll::-webkit-scrollbar-thumb:hover {
+      background: #c6c6c6;
     }
 
     .file-name-cell { 
@@ -572,7 +613,7 @@
       <aside>
 
         <!-- Connection Info -->
-        <div class="card" style="margin-bottom:20px">
+        <div class="card accent-blue" style="margin-bottom:20px">
           <div class="card-header">
             <span class="card-title">Connection</span>
           </div>
@@ -593,7 +634,7 @@
         </div>
 
         <!-- Stats -->
-        <div class="card">
+        <div class="card accent-green">
           <div class="card-header">
             <span class="card-title">Storage</span>
             <button class="btn btn-ghost" onclick="refreshAll()" style="padding:4px 10px;font-size:11px">Refresh</button>
@@ -618,7 +659,7 @@
       <section>
 
         <!-- Upload zone -->
-        <div class="card" style="margin-bottom:24px">
+        <div class="card accent-blue" style="margin-bottom:24px">
           <div class="card-header">
             <span class="card-title">Upload Files</span>
             <span style="font-size:11px;color:var(--text-muted)">Max 2 GB per file</span>
@@ -776,17 +817,19 @@
     }).join('');
 
     container.innerHTML = `
-      <table class="file-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Modified</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>`;
+      <div class="file-table-scroll">
+        <table class="file-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Size</th>
+              <th>Modified</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
   }
 
   async function handleFileSelect(e) {
