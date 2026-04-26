@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         binding.btnScanQr.setOnClickListener {
             qrScanner.launch(
                 ScanOptions().apply {
+                    setCaptureActivity(PortraitCaptureActivity::class.java)
                     setPrompt("Scan LocalBeam QR Code")
                     setBeepEnabled(false)
                     setOrientationLocked(true)
