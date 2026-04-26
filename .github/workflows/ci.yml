@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, dev ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+
+  # ── Test server ─────────────────────────────────────────────────────────────
+  test-server:
+    name: Test Node.js server
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Start server and verify API
+        run: |
+          cd server
+          PORT=9876 node server.js &
+          SERVER_PID=$!
+          echo "Server PID: $SERVER_PID"
+
+          # Wait for server to be ready
+          for i in {1..20}; do
+            if curl -sf http://localhost:9876/api/info > /dev/null 2>&1; then
+              echo "Server is up"
+              break
+            fi
+            echo "Waiting... ($i)"
+            sleep 1
+          done
+
+          # Test all endpoints
+          echo "Testing /api/info..."
+          curl -sf http://localhost:9876/api/info | python3 -m json.tool
+
+          echo "Testing /api/files..."
+          curl -sf http://localhost:9876/api/files | python3 -m json.tool
+
+          echo "Testing /api/stats..."
+          curl -sf http://localhost:9876/api/stats | python3 -m json.tool
+
+          echo "Testing file upload..."
+          echo "hello from CI test" > /tmp/test-ci.txt
+          curl -sf -F "files=@/tmp/test-ci.txt" http://localhost:9876/api/upload | python3 -m json.tool
+
+          echo "Testing file list after upload..."
+          curl -sf http://localhost:9876/api/files | python3 -m json.tool
+
+          kill $SERVER_PID
+          echo "All API tests passed"
+
+  # ── Validate Android project ────────────────────────────────────────────────
+  validate-android:
+    name: Validate Android project
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android-app/**/*.gradle*') }}
+
+      - name: Grant gradlew permission
+        run: chmod +x android-app/gradlew
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Check Android project compiles
+        working-directory: android-app
+        run: ./gradlew compileDebugKotlin --no-daemon
+
+  # ── Validate Electron project ────────────────────────────────────────────────
+  validate-electron:
+    name: Validate Electron project
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron/package-lock.json
+
+      - name: Install dependencies
+        working-directory: electron
+        run: npm ci
+
+      - name: Check main.js syntax
+        run: node --check electron/electron/main.js
+
+      - name: Check preload.js syntax
+        run: node --check electron/electron/preload.js
+
+      - name: Verify electron-builder config
+        working-directory: electron
+        run: npx electron-builder --help > /dev/null && echo "electron-builder OK"
