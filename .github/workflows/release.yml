@@ -365,7 +365,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [build-android, build-linux, build-windows, build-macos-x64, build-macos-arm64]
+    needs: [build-android, build-linux, build-windows]
 
     steps:
       - uses: actions/checkout@v4
@@ -423,7 +423,6 @@ jobs:
             | Linux | `LocalBeam-*.AppImage` | `chmod +x` then run — no install needed |
             | Linux | `localbeam_*.deb` | `sudo dpkg -i filename.deb` |
             | Windows | `LocalBeam-Setup-*.exe` | Run the installer |
-            | macOS | `LocalBeam-*.dmg` | Drag to Applications |
 
             ---
 
