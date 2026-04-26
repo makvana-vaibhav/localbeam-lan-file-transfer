@@ -22,25 +22,20 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: localbeam-linux
-            build_command: npm run dist:linux -- --publish never
+            build_command: npx electron-builder --linux AppImage deb --publish never
             artifact_paths: |
               dist-desktop/*.AppImage
               dist-desktop/*.deb
-              dist-desktop/linux-unpacked/**
           - os: windows-latest
             artifact_name: localbeam-windows
-            build_command: npm run dist:win -- --publish never
+            build_command: npx electron-builder --win nsis --publish never
             artifact_paths: |
               dist-desktop/*.exe
-              dist-desktop/*.yml
-              dist-desktop/win-unpacked/**
           - os: macos-latest
             artifact_name: localbeam-macos
-            build_command: npm run dist:mac -- --publish never
+            build_command: npx electron-builder --mac dmg --publish never
             artifact_paths: |
               dist-desktop/*.dmg
-              dist-desktop/*.zip
-              dist-desktop/*.yml
 
     steps:
       - name: Checkout
