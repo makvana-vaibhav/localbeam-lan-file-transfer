@@ -11,10 +11,10 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "dist": "electron-builder -mwl",
-    "dist:win": "electron-builder --win nsis",
-    "dist:linux": "electron-builder --linux AppImage deb",
-    "dist:mac": "electron-builder --mac dmg"
+    "dist": "electron-builder -mwl --publish never",
+    "dist:win": "electron-builder --win nsis --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb --publish never",
+    "dist:mac": "electron-builder --mac dmg --publish never"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -53,7 +53,7 @@
       ]
     },
     "linux": {
-      "maintainer": "Vaibhav <vaibhav@example.com>",
+      "maintainer": "Vaibhav Makvana <hello@vaibhavmakvana.in>",
       "target": [
         "AppImage",
         "deb"

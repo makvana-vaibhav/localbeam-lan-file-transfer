@@ -22,21 +22,21 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: localbeam-linux
-            build_command: npm run dist:linux
+            build_command: npm run dist:linux -- --publish never
             artifact_paths: |
               dist-desktop/*.AppImage
               dist-desktop/*.deb
               dist-desktop/linux-unpacked/**
           - os: windows-latest
             artifact_name: localbeam-windows
-            build_command: npm run dist:win
+            build_command: npm run dist:win -- --publish never
             artifact_paths: |
               dist-desktop/*.exe
               dist-desktop/*.yml
               dist-desktop/win-unpacked/**
           - os: macos-latest
             artifact_name: localbeam-macos
-            build_command: npm run dist:mac
+            build_command: npm run dist:mac -- --publish never
             artifact_paths: |
               dist-desktop/*.dmg
               dist-desktop/*.zip
